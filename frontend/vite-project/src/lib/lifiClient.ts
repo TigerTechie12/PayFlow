@@ -141,7 +141,6 @@ export async function routeCrossChainPayment(
 
   if (!DEMO_MODE && fromAddress) {
     try {
-      // Get quote from LI.FI
       const quoteRequest = {
         fromChain: LIFI_CHAIN_IDS[fromChain],
         toChain: LIFI_CHAIN_IDS[toChain],
@@ -152,17 +151,14 @@ export async function routeCrossChainPayment(
         toAddress: recipient,
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const quote = await getQuote(quoteRequest as any)
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const executedRoute = await executeRoute(quote as any, {
         updateRouteHook: (updatedRoute) => {
           console.log('[LI.FI] Route progress:', updatedRoute.id)
         },
       })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const txHash =
         (executedRoute as any).steps?.[0]?.execution?.process?.[0]?.txHash ??
         `0x${Date.now().toString(16)}`
