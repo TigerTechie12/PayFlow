@@ -1,5 +1,4 @@
-import type { Payment, PaymentRoutes, Chain, Recipient } from '../types';
-
+import type { Payment, PaymentRoutes, Chain, Recipient } from '../types'
 
 const EVM_CHAINS: Chain[] = ['ethereum', 'base', 'arbitrum', 'polygon', 'optimism']
 
@@ -13,13 +12,10 @@ export function categorizePayments(
 
   for (const payment of payments) {
     if (payment.chain === 'sui') {
-     
       suiPayments.push(payment)
     } else if (payment.chain === payerChain) {
-
       yellowPayments.push(payment)
     } else if (EVM_CHAINS.includes(payment.chain)) {
-      
       lifiPayments.push(payment)
     }
   }
