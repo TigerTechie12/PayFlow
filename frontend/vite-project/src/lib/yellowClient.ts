@@ -70,7 +70,7 @@ export class YellowSession {
 
         const allocations = [
           {
-            participant: this.userAddress,
+            participant: this.userAddress as `0x${string}`,
             asset: token.toLowerCase(),
             amount: String(Math.floor(parseFloat(depositAmount) * 1e6)),
           },
@@ -160,7 +160,7 @@ export class YellowSession {
     if (!DEMO_MODE && this.ws && this.messageSigner && this.appSessionId) {
       try {
         const finalAllocations = this.queuedPayments.map((p) => ({
-          participant: p.recipient,
+          participant: p.recipient as `0x${string}`,
           asset: this.token.toLowerCase(),
           amount: String(Math.floor(parseFloat(p.amount) * 1e6)),
         }))
