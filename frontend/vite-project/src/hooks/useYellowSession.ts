@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef } from 'react';
-import { YellowSession } from '../lib/yellowClient';
-import type { Payment, SessionStatus, TransactionResult } from '../types';
-import { usePayFlowStore } from '../lib/store';
+import { useState, useCallback, useRef } from 'react'
+import { YellowSession } from '../lib/yellowClient'
+import type { Payment, SessionStatus, TransactionResult } from '../types'
+import { usePayFlowStore } from '../lib/store'
 
 export function useYellowSession() {
   const sessionRef = useRef<YellowSession | null>(null)
@@ -14,13 +14,10 @@ export function useYellowSession() {
     setIsLoading(true)
     setError(null)
     try {
-      
       const session = new YellowSession()
       await session.initialize(depositAmount, token)
       sessionRef.current = session
-      
       const newStatus = await session.getSessionStatus()
-
       setStatus(newStatus)
       addLog(`Yellow session initialized: ${depositAmount} ${token} deposited`)
     } catch (err) {

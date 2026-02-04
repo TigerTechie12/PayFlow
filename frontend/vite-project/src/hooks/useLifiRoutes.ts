@@ -1,18 +1,15 @@
-import { useState, useCallback } from 'react';
-import { executeLifiBatchPayments, getPaymentQuote } from '../lib/lifiClient';
-import type { Chain, Payment, Quote, TransactionResult } from '../types';
-import { usePayFlowStore } from '../lib/store';
+import { useState, useCallback } from 'react'
+import { executeLifiBatchPayments, getPaymentQuote } from '../lib/lifiClient'
+import type { Chain, Payment, Quote, TransactionResult } from '../types'
+import { usePayFlowStore } from '../lib/store'
 
 export function useLifiRoutes() {
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [results, setResults] = useState<TransactionResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [progress, setProgress] = useState({ current: 0, total: 0 })
-  
   const [error, setError] = useState<string | null>(null)
   const addLog = usePayFlowStore((s) => s.addLog)
-
-
 
   const fetchQuotes = useCallback(async (payments: Payment[], fromChain: Chain) => {
     setIsLoading(true)
@@ -30,11 +27,10 @@ export function useLifiRoutes() {
         newQuotes.push(quote)
       }
       setQuotes(newQuotes)
-      
       addLog(`LI.FI: Fetched ${newQuotes.length} cross-chain quotes`)
       return newQuotes
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to fetch quotes';
+      const msg = err instanceof Error ? err.message : 'Failed to fetch quotes'
       setError(msg)
       return []
     } finally {
@@ -50,7 +46,6 @@ export function useLifiRoutes() {
     setError(null)
     setProgress({ current: 0, total: payments.length })
 
-
     try {
       addLog(`LI.FI: Executing ${payments.length} cross-chain transfers...`)
       const txResults = await executeLifiBatchPayments(
@@ -61,7 +56,6 @@ export function useLifiRoutes() {
           const payment = payments[index]
           if (result.success) {
             addLog(
-
               `LI.FI: [${index + 1}/${total}] ${payment.amount} → ${payment.chain} ✓ TX: ${result.txHash?.slice(0, 16)}...`
             )
           } else {
