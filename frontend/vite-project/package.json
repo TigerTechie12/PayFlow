@@ -10,8 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@erc7824/nitrolite": "^0.2.0",
     "@lifi/sdk": "^3.4.1",
-    "@mysten/sui.js": "^0.54.1",
+    "@mysten/sui": "^1.16.0",
     "@tanstack/react-query": "^5.62.0",
     "lucide-react": "^0.460.0",
     "papaparse": "^5.4.1",
