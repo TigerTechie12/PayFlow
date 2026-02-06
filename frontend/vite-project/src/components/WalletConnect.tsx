@@ -113,9 +113,9 @@ export function WalletConnect() {
     `${addr.slice(0, 6)}...${addr.slice(-4)}`
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
       {connectError && (
-        <div className="flex items-center gap-1 text-xs text-red-400">
+        <div className="flex items-center gap-1 text-xs text-red-400 w-full sm:w-auto">
           <AlertCircle size={12} />
           {connectError}
         </div>
@@ -123,9 +123,9 @@ export function WalletConnect() {
 
       <div className="flex items-center gap-2">
         {isEvmConnected ? (
-          <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-1.5 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2">
             <div className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
-            <span className="text-sm text-gray-300 font-mono">
+            <span className="text-xs sm:text-sm text-gray-300 font-mono">
               {truncateAddress(evmAddress!)}
             </span>
             <button
@@ -133,30 +133,31 @@ export function WalletConnect() {
               className="text-gray-500 hover:text-red-400 transition-colors"
               title="Disconnect EVM"
             >
-              <Unlink size={14} />
+              <Unlink size={12} />
             </button>
           </div>
         ) : (
           <button
             onClick={connectEvm}
             disabled={isConnecting}
-            className="btn-primary flex items-center gap-2 text-sm disabled:opacity-70"
+            className="btn-primary flex items-center gap-1.5 text-xs sm:text-sm py-1.5 px-2 sm:px-4 disabled:opacity-70"
           >
             {isConnecting ? (
-              <Loader2 size={16} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin" />
             ) : (
-              <Wallet size={16} />
+              <Wallet size={14} />
             )}
-            {isConnecting ? 'Connecting...' : 'Connect EVM'}
+            <span className="hidden xs:inline">{isConnecting ? 'Connecting...' : 'Connect EVM'}</span>
+            <span className="xs:hidden">{isConnecting ? '...' : 'EVM'}</span>
           </button>
         )}
       </div>
 
       <div className="flex items-center gap-2">
         {isSuiConnected ? (
-          <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-1.5 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2">
             <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-            <span className="text-sm text-gray-300 font-mono">
+            <span className="text-xs sm:text-sm text-gray-300 font-mono">
               {truncateAddress(suiAddress!)}
             </span>
             <button
@@ -164,21 +165,22 @@ export function WalletConnect() {
               className="text-gray-500 hover:text-red-400 transition-colors"
               title="Disconnect Sui"
             >
-              <Unlink size={14} />
+              <Unlink size={12} />
             </button>
           </div>
         ) : (
           <button
             onClick={connectSui}
             disabled={isConnecting}
-            className="btn-secondary flex items-center gap-2 text-sm disabled:opacity-70"
+            className="btn-secondary flex items-center gap-1.5 text-xs sm:text-sm py-1.5 px-2 sm:px-4 disabled:opacity-70"
           >
             {isConnecting ? (
-              <Loader2 size={16} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin" />
             ) : (
-              <Link size={16} />
+              <Link size={14} />
             )}
-            {isConnecting ? 'Connecting...' : 'Connect Sui'}
+            <span className="hidden xs:inline">{isConnecting ? 'Connecting...' : 'Connect Sui'}</span>
+            <span className="xs:hidden">{isConnecting ? '...' : 'Sui'}</span>
           </button>
         )}
       </div>
@@ -187,14 +189,15 @@ export function WalletConnect() {
         <div className="relative">
           <button
             onClick={() => setShowChainDropdown(!showChainDropdown)}
-            className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm hover:border-gray-600 transition-colors"
+            className="flex items-center gap-1.5 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm hover:border-gray-600 transition-colors"
           >
             <span
-              className="w-3 h-3 rounded-full"
+              className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
               style={{ backgroundColor: CHAIN_CONFIG[payerChain].color }}
             />
-            <span>{CHAIN_CONFIG[payerChain].name}</span>
-            <ChevronDown size={14} className="text-gray-500" />
+            <span className="hidden sm:inline">{CHAIN_CONFIG[payerChain].name}</span>
+            <span className="sm:hidden">{CHAIN_CONFIG[payerChain].icon}</span>
+            <ChevronDown size={12} className="text-gray-500" />
           </button>
           {showChainDropdown && (
             <>
@@ -202,17 +205,17 @@ export function WalletConnect() {
                 className="fixed inset-0 z-40"
                 onClick={() => setShowChainDropdown(false)}
               />
-              <div className="absolute top-full mt-1 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[160px]">
+              <div className="absolute top-full mt-1 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[140px]">
                 {EVM_CHAINS.map((chain) => (
                   <button
                     key={chain}
                     onClick={() => switchChain(chain)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-xs sm:text-sm hover:bg-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
                       chain === payerChain ? 'text-primary-400' : 'text-gray-300'
                     }`}
                   >
                     <span
-                      className="w-3 h-3 rounded-full"
+                      className="w-2.5 h-2.5 rounded-full"
                       style={{ backgroundColor: CHAIN_CONFIG[chain].color }}
                     />
                     {CHAIN_CONFIG[chain].name}
@@ -225,8 +228,8 @@ export function WalletConnect() {
       )}
 
       {(isEvmConnected || isSuiConnected) && !window.ethereum && (
-        <span className="text-xs text-yellow-500 px-2 py-1 bg-yellow-900/20 rounded-full">
-          Demo Mode
+        <span className="text-[10px] sm:text-xs text-yellow-500 px-1.5 py-0.5 sm:px-2 sm:py-1 bg-yellow-900/20 rounded-full">
+          Demo
         </span>
       )}
     </div>

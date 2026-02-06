@@ -88,20 +88,20 @@ export function RecipientTable() {
   }
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-4">
+    <div className="card p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
-          <Users size={20} className="text-primary-400" />
-          <h2 className="text-lg font-semibold">Recipients</h2>
-          <span className="text-sm text-gray-500">({recipients.length})</span>
+          <Users size={18} className="text-primary-400" />
+          <h2 className="text-base sm:text-lg font-semibold">Recipients</h2>
+          <span className="text-xs sm:text-sm text-gray-500">({recipients.length})</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={loadSampleData}
             disabled={isExecuting}
-            className="text-xs text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-50"
+            className="text-[10px] sm:text-xs text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-50 whitespace-nowrap"
           >
-            Load Sample
+            Sample
           </button>
           <input
             ref={fileInputRef}
@@ -113,24 +113,24 @@ export function RecipientTable() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isExecuting}
-            className="flex items-center gap-1 text-sm bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1 text-xs bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 transition-colors disabled:opacity-50"
           >
-            <Upload size={14} />
-            CSV
+            <Upload size={12} />
+            <span className="hidden sm:inline">CSV</span>
           </button>
           <button
             onClick={() => setShowAddForm(true)}
             disabled={isExecuting}
-            className="flex items-center gap-1 text-sm btn-primary py-1.5 disabled:opacity-50"
+            className="flex items-center gap-1 text-xs btn-primary py-1 px-2 sm:py-1.5 sm:px-3 disabled:opacity-50"
           >
-            <Plus size={14} />
-            Add
+            <Plus size={12} />
+            <span className="hidden sm:inline">Add</span>
           </button>
           {recipients.length > 0 && (
             <button
               onClick={clearRecipients}
               disabled={isExecuting}
-              className="flex items-center gap-1 text-sm text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+              className="flex items-center text-red-400 hover:text-red-300 transition-colors disabled:opacity-50 p-1"
             >
               <Trash2 size={14} />
             </button>
@@ -139,32 +139,32 @@ export function RecipientTable() {
       </div>
 
       {showAddForm && (
-        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-4">
+        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium">Add Recipient</span>
+            <span className="text-xs sm:text-sm font-medium">Add Recipient</span>
             <button onClick={() => setShowAddForm(false)} className="text-gray-500 hover:text-gray-300">
               <X size={16} />
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3">
             <input
               placeholder="Name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="input-field"
+              className="input-field text-xs sm:text-sm py-1.5 sm:py-2"
             />
             <input
               placeholder="0x... address"
               value={newAddress}
               onChange={(e) => setNewAddress(e.target.value)}
-              className="input-field"
+              className="input-field text-xs sm:text-sm py-1.5 sm:py-2 col-span-2 sm:col-span-1"
             />
             <input
               placeholder="Amount"
               type="number"
               value={newAmount}
               onChange={(e) => setNewAmount(e.target.value)}
-              className="input-field"
+              className="input-field text-xs sm:text-sm py-1.5 sm:py-2"
             />
             <select
               value={newChain}
@@ -173,23 +173,23 @@ export function RecipientTable() {
                 setNewChain(chain)
                 setNewToken(SUPPORTED_TOKENS[chain][0])
               }}
-              className="select-field"
+              className="select-field text-xs sm:text-sm py-1.5 sm:py-2"
             >
               {ALL_CHAINS.map((c) => (
                 <option key={c} value={c}>{CHAIN_CONFIG[c].name}</option>
               ))}
             </select>
-            <div className="flex gap-2">
+            <div className="flex gap-2 col-span-2 sm:col-span-1">
               <select
                 value={newToken}
                 onChange={(e) => setNewToken(e.target.value)}
-                className="select-field flex-1"
+                className="select-field flex-1 text-xs sm:text-sm py-1.5 sm:py-2"
               >
                 {SUPPORTED_TOKENS[newChain].map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
-              <button onClick={handleAdd} className="btn-accent py-1.5 px-3 text-sm whitespace-nowrap">
+              <button onClick={handleAdd} className="btn-accent py-1.5 px-3 text-xs sm:text-sm whitespace-nowrap">
                 Add
               </button>
             </div>
@@ -198,72 +198,124 @@ export function RecipientTable() {
       )}
 
       {recipients.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <Users size={40} className="mx-auto mb-3 opacity-50" />
-          <p className="text-sm">No recipients added yet</p>
-          <p className="text-xs mt-1">Add manually, import CSV, or load sample data</p>
+        <div className="text-center py-8 sm:py-12 text-gray-500">
+          <Users size={32} className="mx-auto mb-3 opacity-50" />
+          <p className="text-xs sm:text-sm">No recipients added yet</p>
+          <p className="text-[10px] sm:text-xs mt-1">Add manually, import CSV, or load sample</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-800 text-gray-500 text-left">
-                <th className="pb-2 font-medium">Name</th>
-                <th className="pb-2 font-medium">Address</th>
-                <th className="pb-2 font-medium">Amount</th>
-                <th className="pb-2 font-medium">Chain</th>
-                <th className="pb-2 font-medium">Token</th>
-                <th className="pb-2 font-medium">Status</th>
-                <th className="pb-2 font-medium w-10"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {recipients.map((r) => (
-                <tr key={r.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                  <td className="py-2.5 text-gray-300">{r.name}</td>
-                  <td className="py-2.5 font-mono text-xs text-gray-400">
-                    {r.address.slice(0, 8)}...{r.address.slice(-6)}
-                  </td>
-                  <td className="py-2.5">
+        <>
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-800 text-gray-500 text-left">
+                  <th className="pb-2 font-medium text-xs">Name</th>
+                  <th className="pb-2 font-medium text-xs">Address</th>
+                  <th className="pb-2 font-medium text-xs">Amount</th>
+                  <th className="pb-2 font-medium text-xs">Chain</th>
+                  <th className="pb-2 font-medium text-xs">Token</th>
+                  <th className="pb-2 font-medium text-xs">Status</th>
+                  <th className="pb-2 font-medium w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {recipients.map((r) => (
+                  <tr key={r.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                    <td className="py-2.5 text-gray-300 text-xs">{r.name}</td>
+                    <td className="py-2.5 font-mono text-xs text-gray-400">
+                      {r.address.slice(0, 8)}...{r.address.slice(-6)}
+                    </td>
+                    <td className="py-2.5">
+                      {isExecuting ? (
+                        <span className="text-xs">{r.amount}</span>
+                      ) : (
+                        <input
+                          type="number"
+                          value={r.amount}
+                          onChange={(e) => updateRecipient(r.id, { amount: e.target.value })}
+                          className="bg-transparent border-b border-gray-700 focus:border-primary-500 outline-none w-16 py-0.5 text-xs"
+                        />
+                      )}
+                    </td>
+                    <td className="py-2.5">
+                      <span
+                        className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: CHAIN_CONFIG[r.chain].color + '20',
+                          color: CHAIN_CONFIG[r.chain].color,
+                        }}
+                      >
+                        {CHAIN_CONFIG[r.chain].icon} {CHAIN_CONFIG[r.chain].name}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-gray-300 text-xs">{r.token}</td>
+                    <td className="py-2.5">{getStatusBadge(r.status)}</td>
+                    <td className="py-2.5">
+                      {!isExecuting && (
+                        <button
+                          onClick={() => removeRecipient(r.id)}
+                          className="text-gray-600 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="sm:hidden space-y-2">
+            {recipients.map((r) => (
+              <div key={r.id} className="bg-gray-800/30 border border-gray-800 rounded-lg p-3">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="text-sm font-medium text-gray-200">{r.name}</div>
+                    <div className="font-mono text-[10px] text-gray-500">
+                      {r.address.slice(0, 10)}...{r.address.slice(-6)}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(r.status)}
+                    {!isExecuting && (
+                      <button
+                        onClick={() => removeRecipient(r.id)}
+                        className="text-gray-600 hover:text-red-400 transition-colors p-1"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     {isExecuting ? (
-                      <span>{r.amount}</span>
+                      <span className="text-sm font-semibold text-white">{r.amount}</span>
                     ) : (
                       <input
                         type="number"
                         value={r.amount}
                         onChange={(e) => updateRecipient(r.id, { amount: e.target.value })}
-                        className="bg-transparent border-b border-gray-700 focus:border-primary-500 outline-none w-20 py-0.5"
+                        className="bg-transparent border-b border-gray-700 focus:border-primary-500 outline-none w-16 text-sm font-semibold text-white"
                       />
                     )}
-                  </td>
-                  <td className="py-2.5">
-                    <span
-                      className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                      style={{
-                        backgroundColor: CHAIN_CONFIG[r.chain].color + '20',
-                        color: CHAIN_CONFIG[r.chain].color,
-                      }}
-                    >
-                      {CHAIN_CONFIG[r.chain].icon} {CHAIN_CONFIG[r.chain].name}
-                    </span>
-                  </td>
-                  <td className="py-2.5 text-gray-300">{r.token}</td>
-                  <td className="py-2.5">{getStatusBadge(r.status)}</td>
-                  <td className="py-2.5">
-                    {!isExecuting && (
-                      <button
-                        onClick={() => removeRecipient(r.id)}
-                        className="text-gray-600 hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    <span className="text-xs text-gray-400">{r.token}</span>
+                  </div>
+                  <span
+                    className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: CHAIN_CONFIG[r.chain].color + '20',
+                      color: CHAIN_CONFIG[r.chain].color,
+                    }}
+                  >
+                    {CHAIN_CONFIG[r.chain].icon} {CHAIN_CONFIG[r.chain].name}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
