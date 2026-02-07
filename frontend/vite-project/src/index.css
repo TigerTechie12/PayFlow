@@ -2,6 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure Sui dapp-kit modal appears above everything */
+[data-radix-portal],
+#portal-root > * {
+  z-index: 9999 !important;
+  position: fixed !important;
+}
+
+.wkit-dialog__overlay,
+[data-radix-dialog-overlay] {
+  z-index: 9998 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.wkit-dialog__content,
+[data-radix-dialog-content] {
+  z-index: 9999 !important;
+  position: fixed !important;
+}
+
+/* Ensure dapp-kit styles are not purged */
+.dapp-kit-button,
+.dapp-kit-connect-button {
+  display: inline-flex !important;
+}
+
+/* WalletConnect modal z-index */
+.wcm-overlay {
+  z-index: 9999 !important;
+}
+
+.wcm-container {
+  z-index: 10000 !important;
+}
+
+/* Ensure modals are clickable */
+[data-radix-dialog-trigger] {
+  cursor: pointer !important;
+}
+
 @layer base {
   body {
     @apply bg-gray-950 text-white antialiased;

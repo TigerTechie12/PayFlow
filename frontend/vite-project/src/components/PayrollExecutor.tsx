@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Play, Zap, ArrowRight, Loader2, RotateCcw, CheckCircle2 } from 'lucide-react'
+import { useSignAndExecuteTransaction, useCurrentAccount } from '@mysten/dapp-kit'
 import { usePayFlowStore } from '../lib/store'
 import { categorizePayments, recipientsToPayments, estimateGasSavings } from '../lib/payflowEngine'
 import { executeYellowBatchPayment } from '../lib/yellowClient'
@@ -16,6 +17,7 @@ export function PayrollExecutor() {
     isExecuting,
 
     isEvmConnected,
+    isSuiConnected,
     setExecuting,
     createSession,
 
@@ -24,6 +26,10 @@ export function PayrollExecutor() {
     updateRecipientStatus,
     addLog,
   } = usePayFlowStore()
+
+  // Sui wallet hooks
+  const suiAccount = useCurrentAccount()
+  const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction()
 
 
   const [phase, setPhase] = useState<'idle' | 'yellow' | 'lifi' | 'sui' | 'done'>('idle')
@@ -137,7 +143,7 @@ export function PayrollExecutor() {
 
     if (routes.suiPayments.length > 0) {
       setPhase('sui')
- 
+
       addLog('Phase 3: Sui PTB Batch ')
 
       for (const p of routes.suiPayments) {
@@ -146,7 +152,19 @@ export function PayrollExecutor() {
       }
 
       try {
-        const result = await executeSuiBatchPayment(routes.suiPayments)
+        // Use real Sui wallet if connected, otherwise demo mode
+        const signAndExecute = isSuiConnected && suiAccount
+          ? async (args: { transaction: unknown }) => {
+              const res = await signAndExecuteTransaction({ transaction: args.transaction as Parameters<typeof signAndExecuteTransaction>[0]['transaction'] })
+              return { digest: res.digest }
+            }
+          : undefined
+
+        const result = await executeSuiBatchPayment(
+          routes.suiPayments,
+          signAndExecute,
+          suiAccount?.address
+        )
 
         for (const p of routes.suiPayments) {
           const match = recipients.find((r) => r.address === p.recipient)

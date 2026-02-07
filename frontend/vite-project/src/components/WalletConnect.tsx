@@ -1,135 +1,118 @@
-import { useState, useCallback } from 'react'
-import { Wallet, Link, Unlink, ChevronDown, Loader2, AlertCircle } from 'lucide-react'
+import { useState, useCallback, useEffect } from 'react'
+import { Wallet, Unlink, ChevronDown, Loader2 } from 'lucide-react'
+import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi'
+import { ConnectModal, useCurrentAccount, useDisconnectWallet } from '@mysten/dapp-kit'
 import { usePayFlowStore } from '../lib/store'
 import type { Chain } from '../types'
 import { CHAIN_CONFIG } from '../types'
 
 const EVM_CHAINS: Chain[] = ['ethereum', 'base', 'arbitrum', 'polygon', 'optimism']
 
-const CHAIN_RPC: Record<Chain, { chainId: string, chainName: string, rpcUrls: string[], nativeCurrency: { name: string, symbol: string, decimals: number } }> = {
-  ethereum: { chainId: '0x1', chainName: 'Ethereum', rpcUrls: ['https://eth.llamarpc.com'], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 } },
-  base: { chainId: '0x2105', chainName: 'Base', rpcUrls: ['https://mainnet.base.org'], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 } },
-  arbitrum: { chainId: '0xa4b1', chainName: 'Arbitrum One', rpcUrls: ['https://arb1.arbitrum.io/rpc'], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 } },
-  polygon: { chainId: '0x89', chainName: 'Polygon', rpcUrls: ['https://polygon-rpc.com'], nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 } },
-  optimism: { chainId: '0xa', chainName: 'Optimism', rpcUrls: ['https://mainnet.optimism.io'], nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 } },
-  sui: { chainId: '0x0', chainName: 'Sui', rpcUrls: [], nativeCurrency: { name: 'SUI', symbol: 'SUI', decimals: 9 } },
+const CHAIN_IDS: Record<Chain, number> = {
+  ethereum: 1,
+  base: 8453,
+  arbitrum: 42161,
+  polygon: 137,
+  optimism: 10,
+  sui: 0,
 }
 
 export function WalletConnect() {
   const {
-    evmAddress,
-    suiAddress,
     payerChain,
-    isEvmConnected,
-    isSuiConnected,
     setEvmWallet,
     setSuiWallet,
     setPayerChain,
   } = usePayFlowStore()
 
   const [showChainDropdown, setShowChainDropdown] = useState(false)
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [connectError, setConnectError] = useState<string | null>(null)
+  const [showWalletOptions, setShowWalletOptions] = useState(false)
 
-  const connectEvm = useCallback(async () => {
-    setIsConnecting(true)
-    setConnectError(null)
+  // Wagmi hooks for EVM
+  const { address: evmAddress, isConnected: isEvmConnected } = useAccount()
+  const { connect, connectors, isPending: isConnecting } = useConnect()
+  const { disconnect: disconnectEvm } = useDisconnect()
+  const { switchChain } = useSwitchChain()
 
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts',
-        }) as string[]
+  // Sui wallet hooks from dapp-kit
+  const suiAccount = useCurrentAccount()
+  const { mutate: disconnectSuiWallet } = useDisconnectWallet()
 
-        if (accounts && accounts.length > 0) {
-          setEvmWallet(accounts[0])
-          console.log('[Wallet] Connected EVM wallet:', accounts[0])
-          setIsConnecting(false)
-          return
-        }
-      } catch (err) {
-        console.warn('[Wallet] MetaMask connection failed:', err)
-      }
+  // Use dapp-kit's account as source of truth for Sui connection
+  const isSuiWalletConnected = !!suiAccount?.address
+
+  // Sync EVM wallet state with store
+  useEffect(() => {
+    if (evmAddress) {
+      setEvmWallet(evmAddress)
+      console.log('[Wallet] Connected EVM wallet:', evmAddress)
+    } else {
+      setEvmWallet(null)
     }
+  }, [evmAddress, setEvmWallet])
 
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const mockAddress = '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD68'
-    setEvmWallet(mockAddress)
-    console.log('[Wallet] Demo mode: using mock EVM address')
-    setIsConnecting(false)
-  }, [setEvmWallet])
+  // Sync Sui wallet state with store when account changes
+  useEffect(() => {
+    if (suiAccount?.address) {
+      setSuiWallet(suiAccount.address)
+      console.log('[Wallet] Connected Sui wallet:', suiAccount.address)
+    } else {
+      setSuiWallet(null)
+    }
+  }, [suiAccount?.address, setSuiWallet])
 
-  const connectSui = useCallback(async () => {
-    setIsConnecting(true)
-    setConnectError(null)
+  const handleEvmConnect = useCallback((connectorId: string) => {
+    const connector = connectors.find(c => c.id === connectorId || c.name.toLowerCase().includes(connectorId.toLowerCase()))
+    if (connector) {
+      connect({ connector })
+    }
+    setShowWalletOptions(false)
+  }, [connect, connectors])
 
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const mockAddress = '0x' + 'a'.repeat(64)
-    setSuiWallet(mockAddress)
-    console.log('[Wallet] Demo mode: using mock Sui address')
-    setIsConnecting(false)
-  }, [setSuiWallet])
-
-  const disconnectEvm = useCallback(() => {
+  const handleDisconnectEvm = useCallback(() => {
+    disconnectEvm()
     setEvmWallet(null)
-    setConnectError(null)
-  }, [setEvmWallet])
+  }, [disconnectEvm, setEvmWallet])
 
   const disconnectSui = useCallback(() => {
+    disconnectSuiWallet()
     setSuiWallet(null)
-    setConnectError(null)
-  }, [setSuiWallet])
+  }, [disconnectSuiWallet, setSuiWallet])
 
-  const switchChain = useCallback(async (chain: Chain) => {
+  const handleSwitchChain = useCallback(async (chain: Chain) => {
     if (chain === 'sui') return
 
-    const chainConfig = CHAIN_RPC[chain]
-
-    if (window.ethereum) {
+    const chainId = CHAIN_IDS[chain] as 1 | 8453 | 42161 | 137 | 10
+    if (chainId && switchChain) {
       try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: chainConfig.chainId }],
-        })
-      } catch (switchError: unknown) {
-        if ((switchError as { code?: number })?.code === 4902) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [chainConfig],
-            })
-          } catch {
-            console.warn('[Wallet] Failed to add chain')
-          }
-        }
+        switchChain({ chainId })
+      } catch (err) {
+        console.warn('[Wallet] Failed to switch chain:', err)
       }
     }
 
     setPayerChain(chain)
     setShowChainDropdown(false)
-  }, [setPayerChain])
+  }, [setPayerChain, switchChain])
 
   const truncateAddress = (addr: string) =>
     `${addr.slice(0, 6)}...${addr.slice(-4)}`
 
+  // Get available connectors
+  const injectedConnector = connectors.find(c => c.id === 'injected')
+  const walletConnectConnector = connectors.find(c => c.id === 'walletConnect')
+
   return (
     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
-      {connectError && (
-        <div className="flex items-center gap-1 text-xs text-red-400 w-full sm:w-auto">
-          <AlertCircle size={12} />
-          {connectError}
-        </div>
-      )}
-
       <div className="flex items-center gap-2">
-        {isEvmConnected ? (
+        {isEvmConnected && evmAddress ? (
           <div className="flex items-center gap-1.5 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2">
             <div className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
             <span className="text-xs sm:text-sm text-gray-300 font-mono">
-              {truncateAddress(evmAddress!)}
+              {truncateAddress(evmAddress)}
             </span>
             <button
-              onClick={disconnectEvm}
+              onClick={handleDisconnectEvm}
               className="text-gray-500 hover:text-red-400 transition-colors"
               title="Disconnect EVM"
             >
@@ -137,28 +120,62 @@ export function WalletConnect() {
             </button>
           </div>
         ) : (
-          <button
-            onClick={connectEvm}
-            disabled={isConnecting}
-            className="btn-primary flex items-center gap-1.5 text-xs sm:text-sm py-1.5 px-2 sm:px-4 disabled:opacity-70"
-          >
-            {isConnecting ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Wallet size={14} />
+          <div className="relative">
+            <button
+              onClick={() => setShowWalletOptions(!showWalletOptions)}
+              disabled={isConnecting}
+              className="btn-primary flex items-center gap-1.5 text-xs sm:text-sm py-1.5 px-2 sm:px-4 disabled:opacity-70"
+            >
+              {isConnecting ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Wallet size={14} />
+              )}
+              <span className="hidden xs:inline">{isConnecting ? 'Connecting...' : 'Connect EVM'}</span>
+              <span className="xs:hidden">{isConnecting ? '...' : 'EVM'}</span>
+            </button>
+
+            {showWalletOptions && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowWalletOptions(false)}
+                />
+                <div className="absolute top-full mt-1 right-0 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 min-w-[180px] p-2">
+                  <p className="text-xs text-gray-400 px-2 pb-2">Select wallet</p>
+
+                  {injectedConnector && (
+                    <button
+                      onClick={() => handleEvmConnect('injected')}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      <span className="text-lg">🦊</span>
+                      Browser Wallet
+                    </button>
+                  )}
+
+                  {walletConnectConnector && (
+                    <button
+                      onClick={() => handleEvmConnect('walletConnect')}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      <span className="text-lg">📱</span>
+                      WalletConnect
+                    </button>
+                  )}
+                </div>
+              </>
             )}
-            <span className="hidden xs:inline">{isConnecting ? 'Connecting...' : 'Connect EVM'}</span>
-            <span className="xs:hidden">{isConnecting ? '...' : 'EVM'}</span>
-          </button>
+          </div>
         )}
       </div>
 
       <div className="flex items-center gap-2">
-        {isSuiConnected ? (
+        {isSuiWalletConnected ? (
           <div className="flex items-center gap-1.5 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2">
             <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
             <span className="text-xs sm:text-sm text-gray-300 font-mono">
-              {truncateAddress(suiAddress!)}
+              {truncateAddress(suiAccount?.address || '')}
             </span>
             <button
               onClick={disconnectSui}
@@ -169,19 +186,17 @@ export function WalletConnect() {
             </button>
           </div>
         ) : (
-          <button
-            onClick={connectSui}
-            disabled={isConnecting}
-            className="btn-secondary flex items-center gap-1.5 text-xs sm:text-sm py-1.5 px-2 sm:px-4 disabled:opacity-70"
-          >
-            {isConnecting ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Link size={14} />
-            )}
-            <span className="hidden xs:inline">{isConnecting ? 'Connecting...' : 'Connect Sui'}</span>
-            <span className="xs:hidden">{isConnecting ? '...' : 'Sui'}</span>
-          </button>
+          <ConnectModal
+            trigger={
+              <button
+                type="button"
+                className="btn-secondary flex items-center gap-1.5 text-xs sm:text-sm py-1.5 px-2 sm:px-4"
+              >
+                <span className="hidden xs:inline">Connect Sui</span>
+                <span className="xs:hidden">Sui</span>
+              </button>
+            }
+          />
         )}
       </div>
 
@@ -209,7 +224,7 @@ export function WalletConnect() {
                 {EVM_CHAINS.map((chain) => (
                   <button
                     key={chain}
-                    onClick={() => switchChain(chain)}
+                    onClick={() => handleSwitchChain(chain)}
                     className={`w-full flex items-center gap-2 px-3 py-2 text-xs sm:text-sm hover:bg-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
                       chain === payerChain ? 'text-primary-400' : 'text-gray-300'
                     }`}
@@ -225,12 +240,6 @@ export function WalletConnect() {
             </>
           )}
         </div>
-      )}
-
-      {(isEvmConnected || isSuiConnected) && !window.ethereum && (
-        <span className="text-[10px] sm:text-xs text-yellow-500 px-1.5 py-0.5 sm:px-2 sm:py-1 bg-yellow-900/20 rounded-full">
-          Demo
-        </span>
       )}
     </div>
   )

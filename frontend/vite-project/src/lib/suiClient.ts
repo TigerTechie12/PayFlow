@@ -173,7 +173,7 @@ export function previewSuiBatch(payments: Payment[]): {
 } {
   const operations = payments.map(
     (p) =>
-      `splitCoins(gas, [${p.amount} SUI]) → transferObjects → ${p.recipient.slice(0, 10)}...`,
+      `splitCoins(gas, [${p.amount} SUI]) -> transferObjects -> ${p.recipient.slice(0, 10)}...`,
   )
 
   const totalAmount = payments

@@ -31,8 +31,12 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000,
+    cssCodeSplit: false,
   },
   define: {
     global: 'globalThis',
+  },
+  optimizeDeps: {
+    include: ['@mysten/dapp-kit', 'wagmi', '@wagmi/core'],
   },
 })
