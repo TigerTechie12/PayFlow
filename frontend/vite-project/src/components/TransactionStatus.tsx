@@ -2,15 +2,7 @@ import { Terminal, CheckCircle2, ExternalLink, Copy, Check } from 'lucide-react'
 import { useState } from 'react'
 import { usePayFlowStore } from '../lib/store'
 import type { Chain } from '../types'
-
-const EXPLORER_URLS: Record<Chain, string> = {
-  ethereum: 'https://etherscan.io/tx/',
-  base: 'https://basescan.org/tx/',
-  arbitrum: 'https://arbiscan.io/tx/',
-  polygon: 'https://polygonscan.com/tx/',
-  optimism: 'https://optimistic.etherscan.io/tx/',
-  sui: 'https://suiscan.xyz/testnet/tx/',
-}
+import { CHAIN_CONFIG } from '../types'
 
 export function TransactionStatus() {
   const { executionLogs, currentSession, recipients, payerChain } = usePayFlowStore()
@@ -133,7 +125,7 @@ function TxRow({
 }) {
   const [copied, setCopied] = useState(false)
 
-  const explorerUrl = EXPLORER_URLS[chain] + hash
+  const explorerUrl = CHAIN_CONFIG[chain].explorer + hash
 
   const copyToClipboard = async () => {
     try {

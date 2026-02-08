@@ -2,12 +2,13 @@ import { createConfig, getQuote, executeRoute, getStatus } from '@lifi/sdk'
 import type { Chain, Payment, Quote, TransactionResult } from '../types'
 import { CHAIN_CONFIG } from '../types'
 
+// Use dynamic chain IDs from config (supports testnet/mainnet)
 export const LIFI_CHAIN_IDS: Record<string, number> = {
-  ethereum: 1,
-  base: 8453,
-  arbitrum: 42161,
-  polygon: 137,
-  optimism: 10,
+  ethereum: CHAIN_CONFIG.ethereum.chainId,
+  base: CHAIN_CONFIG.base.chainId,
+  arbitrum: CHAIN_CONFIG.arbitrum.chainId,
+  polygon: CHAIN_CONFIG.polygon.chainId,
+  optimism: CHAIN_CONFIG.optimism.chainId,
 }
 
 export const USDC_ADDRESSES: Record<string, string> = {
