@@ -8,14 +8,7 @@ import { CHAIN_CONFIG } from '../types'
 
 const EVM_CHAINS: Chain[] = ['ethereum', 'base', 'arbitrum', 'polygon', 'optimism']
 
-const CHAIN_IDS: Record<Chain, number> = {
-  ethereum: 1,
-  base: 8453,
-  arbitrum: 42161,
-  polygon: 137,
-  optimism: 10,
-  sui: 0,
-}
+const getChainId = (chain: Chain): number => CHAIN_CONFIG[chain].chainId
 
 export function WalletConnect() {
   const {
@@ -28,20 +21,17 @@ export function WalletConnect() {
   const [showChainDropdown, setShowChainDropdown] = useState(false)
   const [showWalletOptions, setShowWalletOptions] = useState(false)
 
-  // Wagmi hooks for EVM
   const { address: evmAddress, isConnected: isEvmConnected } = useAccount()
   const { connect, connectors, isPending: isConnecting } = useConnect()
   const { disconnect: disconnectEvm } = useDisconnect()
   const { switchChain } = useSwitchChain()
 
-  // Sui wallet hooks from dapp-kit
   const suiAccount = useCurrentAccount()
   const { mutate: disconnectSuiWallet } = useDisconnectWallet()
 
-  // Use dapp-kit's account as source of truth for Sui connection
   const isSuiWalletConnected = !!suiAccount?.address
 
-  // Sync EVM wallet state with store
+
   useEffect(() => {
     if (evmAddress) {
       setEvmWallet(evmAddress)
@@ -51,7 +41,6 @@ export function WalletConnect() {
     }
   }, [evmAddress, setEvmWallet])
 
-  // Sync Sui wallet state with store when account changes
   useEffect(() => {
     if (suiAccount?.address) {
       setSuiWallet(suiAccount.address)
@@ -82,10 +71,10 @@ export function WalletConnect() {
   const handleSwitchChain = useCallback(async (chain: Chain) => {
     if (chain === 'sui') return
 
-    const chainId = CHAIN_IDS[chain] as 1 | 8453 | 42161 | 137 | 10
+    const chainId = getChainId(chain)
     if (chainId && switchChain) {
       try {
-        switchChain({ chainId })
+        switchChain({ chainId: chainId as any })
       } catch (err) {
         console.warn('[Wallet] Failed to switch chain:', err)
       }
@@ -98,7 +87,7 @@ export function WalletConnect() {
   const truncateAddress = (addr: string) =>
     `${addr.slice(0, 6)}...${addr.slice(-4)}`
 
-  // Get available connectors
+  
   const injectedConnector = connectors.find(c => c.id === 'injected')
   const walletConnectConnector = connectors.find(c => c.id === 'walletConnect')
 

@@ -1,13 +1,21 @@
 import { createConfig, http } from 'wagmi'
-import { mainnet, base, arbitrum, polygon, optimism } from 'wagmi/chains'
+import {
+  mainnet, base, arbitrum, polygon, optimism,
+  sepolia, baseSepolia, arbitrumSepolia, polygonAmoy, optimismSepolia
+} from 'wagmi/chains'
 import { injected, walletConnect } from 'wagmi/connectors'
 
-// Get a project ID from https://cloud.walletconnect.com/
-// For production, replace this with your own project ID
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo'
 
+const isTestnet = import.meta.env.VITE_USE_TESTNET === 'true'
+
+const mainnetChains = [mainnet, base, arbitrum, polygon, optimism] as const
+const testnetChains = [sepolia, baseSepolia, arbitrumSepolia, polygonAmoy, optimismSepolia] as const
+
+const chains = isTestnet ? testnetChains : mainnetChains
+
 export const wagmiConfig = createConfig({
-  chains: [mainnet, base, arbitrum, polygon, optimism],
+  chains,
   connectors: [
     injected(),
     walletConnect({
@@ -27,6 +35,12 @@ export const wagmiConfig = createConfig({
     [arbitrum.id]: http(),
     [polygon.id]: http(),
     [optimism.id]: http(),
+    
+    [sepolia.id]: http(),
+    [baseSepolia.id]: http(),
+    [arbitrumSepolia.id]: http(),
+    [polygonAmoy.id]: http(),
+    [optimismSepolia.id]: http(),
   },
 })
 
